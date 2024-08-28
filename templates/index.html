@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtrar y Seleccionar Elementos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .btn-group {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 20px;
+        }
+        .btn-group .btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Seleccionar y Filtrar Elementos</h1>
+        <form method="post" onsubmit="removeSpacesAndSubmit()">
+            <!-- Campo de texto para filtrar -->
+            <div class="form-group">
+                <label for="filter_text">Filtrar por texto:</label>
+                <input type="text" id="filter_text" name="filter_text" class="form-control" value="{{ filter_text }}">
+            </div>
+            <!-- Botones de acción -->
+            <div class="btn-group">
+                <button type="submit" name="action" value="filter" class="btn btn-primary">Filtrar</button>
+                <a href="{{ url_for('show_selected') }}" class="btn btn-secondary">Ver Elementos Seleccionados</a>
+            </div>
+            <!-- Botón para agregar selección -->
+            <button type="submit" name="action" value="add" class="btn btn-primary mt-3">Agregar Selección</button>
+
+            <!-- Lista de elementos para seleccionar -->
+            <ul class="list-group mt-3">
+                {% for item in items %}
+                    <li class="list-group-item">
+                        <input type="radio" id="item_{{ loop.index }}" name="selected_item" value="{{ item }}"
+                        {% if item in selected_items %} checked {% endif %}>
+                        <label for="item_{{ loop.index }}">{{ item }}</label>
+                    </li>
+                {% else %}
+                    <li class="list-group-item">No se encontraron elementos.</li>
+                {% endfor %}
+            </ul>
+        </form>
+    </div>
+
+    <script>
+        function removeSpacesAndSubmit() {
+            var input = document.getElementById('filter_text');
+            input.value = input.value.replace(/\s+/g, '');
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

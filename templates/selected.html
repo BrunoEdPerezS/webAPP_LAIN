@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elementos Seleccionados</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Elementos Seleccionados</h1>
+        <!-- Formulario para eliminar elementos seleccionados -->
+        <form method="post" action="{{ url_for('delete_selected') }}">
+            <ul class="list-group">
+                {% if selected_items %}
+                    {% for item in selected_items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <input type="checkbox" id="item_{{ loop.index }}" name="selected_items" value="{{ item }}">
+                                <label for="item_{{ loop.index }}">{{ item }}</label>
+                            </div>
+                            <input type="text" id="input_{{ loop.index }}" name="input_{{ loop.index }}" class="form-control ml-3" placeholder="Ingrese un valor">
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">No hay elementos seleccionados.</li>
+                {% endif %}
+            </ul>
+            <button type="submit" class="btn btn-danger mt-3">Eliminar</button>
+        </form>
+        <!-- Formulario para guardar las listas -->
+        <form method="post" action="{{ url_for('save_lists') }}" class="mt-3" id="saveForm">
+            <!-- Campos ocultos para enviar los valores de los campos de texto -->
+            <input type="hidden" id="inputs_hidden" name="inputs">
+            <button type="submit" class="btn btn-success">Guardar Listas</button>
+        </form>
+        <!-- Enlace de regreso a la página principal -->
+        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Regresar</a>
+
+        <!-- Script JavaScript para recolectar valores y enviar con el formulario -->
+        <script>
+            document.getElementById('saveForm').addEventListener('submit', function() {
+                // Recolectar todos los valores de los campos de texto
+                const inputs = [];
+                document.querySelectorAll('input[type="text"]').forEach(input => {
+                    inputs.push(input.value);
+                });
+                // Asignar los valores a un campo oculto en el formulario
+                document.getElementById('inputs_hidden').value = JSON.stringify(inputs);
+            });
+        </script>
+    </div>
+</body>
+</html>
+
+
+
