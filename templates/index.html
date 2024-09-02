@@ -6,60 +6,146 @@
     <title>Filtrar y Seleccionar Elementos</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
-        .btn-group {
-            display: flex;
-            justify-content: flex-start;
-            margin-top: 20px;
+        .scrollable-list {
+            max-height: 400px; /* Altura máxima de la lista */
+            overflow-y: auto; /* Habilitar scroll vertical */
+            border: 1px solid #ddd; /* Borde suave */
+            padding: 10px;
+            border-radius: 5px;
         }
-        .btn-group .btn {
-            margin-right: 10px;
+        .btn-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background-color: #f8f9fa; /* Fondo claro */
+            border: 1px solid #ddd; /* Borde suave */
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            color: #333; /* Texto oscuro */
+            cursor: pointer;
+        }
+        .btn-item:hover {
+            background-color: #e2e6ea; /* Cambiar ligeramente el color al pasar el mouse */
         }
     </style>
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Seleccionar y Filtrar Elementos</h1>
-        <form method="post" onsubmit="removeSpacesAndSubmit()">
+        <h1>Seleccionar y filtrar elementos</h1>
+        <!-- Formulario que envía la solicitud para filtrar y guardar -->
+        <form method="post" action="{{ url_for('index') }}">
             <!-- Campo de texto para filtrar -->
             <div class="form-group">
-                <label for="filter_text">Filtrar por texto:</label>
+                <label for="filter_text">Utilice términos clave y sepárelos por *<br>Ej. AISLADOR*25KV</label>
                 <input type="text" id="filter_text" name="filter_text" class="form-control" value="{{ filter_text }}">
             </div>
-            <!-- Botones de acción -->
-            <div class="btn-group">
-                <button type="submit" name="action" value="filter" class="btn btn-primary">Filtrar</button>
-                <a href="{{ url_for('show_selected') }}" class="btn btn-secondary">Ver Elementos Seleccionados</a>
-            </div>
-            <!-- Botón para agregar selección -->
-            <button type="submit" name="action" value="add" class="btn btn-primary mt-3">Agregar Selección</button>
 
-            <!-- Lista de elementos para seleccionar -->
-            <ul class="list-group mt-3">
-                {% for item in items %}
-                    <li class="list-group-item">
-                        <input type="radio" id="item_{{ loop.index }}" name="selected_item" value="{{ item }}"
-                        {% if item in selected_items %} checked {% endif %}>
-                        <label for="item_{{ loop.index }}">{{ item }}</label>
-                    </li>
-                {% else %}
-                    <li class="list-group-item">No se encontraron elementos.</li>
-                {% endfor %}
-            </ul>
+            <!-- Grupo de botones: Filtrar, Guardar Selección y Editar Stock -->
+            <div class="d-flex justify-content-center mb-3">
+                <button type="submit" name="action" value="filter" class="btn btn-primary mx-2">Filtrar</button>
+                <input type="hidden" id="selected_items_hidden" name="selected_items">
+                <button type="submit" name="action" value="save" class="btn btn-success mx-2">Guardar Selección</button>
+                <button type="button" class="btn btn-warning mx-2" onclick="editStock()">Editar Stock</button>
+            </div>
         </form>
+
+        <!-- Lista de etiquetas seleccionables -->
+        <div id="tags-container" class="scrollable-list">
+            {% for item in items %}
+                <button class="btn-item" onclick="showPopup('{{ item }}')">{{ item }}</button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modal para ingresar valor -->
+    <div class="modal" id="valueModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ingresar Valor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="inputValue" class="form-control" placeholder="Ingrese un valor">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveValue()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Modal para carga de archivo Excel -->
+    <div class="modal" id="uploadModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cargar Archivo Excel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm" method="post" enctype="multipart/form-data" action="{{ url_for('upload_stock') }}">
+                        <div class="form-group">
+                            <input type="file" name="file" class="form-control-file" accept=".xlsx, .xls">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cargar Archivo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        function removeSpacesAndSubmit() {
-            var input = document.getElementById('filter_text');
-            input.value = input.value.replace(/\s+/g, '');
+        let selectedItems = {};
+
+        function showPopup(item) {
+            document.getElementById('inputValue').value = '';
+            $('#valueModal').data('item', item).modal('show');
         }
+
+        function saveValue() {
+            const item = $('#valueModal').data('item');
+            const value = document.getElementById('inputValue').value;
+            if (value) {
+                selectedItems[item] = value;
+                updateHiddenField();
+            }
+            $('#valueModal').modal('hide');
+        }
+
+        function updateHiddenField() {
+            document.getElementById('selected_items_hidden').value = JSON.stringify(selectedItems);
+        }
+
+        function editStock() {
+            // Implementa la lógica para editar el stock aquí
+            alert("Función de edición de stock en construcción.");
+        }
+        function editStock() {
+            $('#uploadModal').modal('show');
+        }
+
+        function triggerFilter() {
+            document.querySelector('button[name="action"][value="filter"]').click();
+        }
+
+        function checkForFilterTrigger() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const filter = urlParams.get('filter');
+            if (filter === 'true') {
+                triggerFilter();
+            }
+        }
+
+        // Ejecutar la verificación al cargar la página
+        window.onload = checkForFilterTrigger;
     </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-

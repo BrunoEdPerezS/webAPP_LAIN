@@ -5,53 +5,164 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elementos Seleccionados</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .scrollable-list {
+            max-height: 400px; /* Altura máxima de la lista */
+            overflow-y: auto; /* Habilitar scroll vertical */
+            border: 1px solid #ddd; /* Borde suave */
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .btn-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background-color: #f8f9fa; /* Fondo claro */
+            border: 1px solid #ddd; /* Borde suave */
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            color: #333; /* Texto oscuro */
+            cursor: pointer;
+        }
+        .btn-item:hover {
+            background-color: #e2e6ea; /* Cambiar ligeramente el color al pasar el mouse */
+        }
+        .btn-group {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Elementos Seleccionados</h1>
-        <!-- Formulario para eliminar elementos seleccionados -->
-        <form method="post" action="{{ url_for('delete_selected') }}">
-            <ul class="list-group">
-                {% if selected_items %}
-                    {% for item in selected_items %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <input type="checkbox" id="item_{{ loop.index }}" name="selected_items" value="{{ item }}">
-                                <label for="item_{{ loop.index }}">{{ item }}</label>
-                            </div>
-                            <input type="text" id="input_{{ loop.index }}" name="input_{{ loop.index }}" class="form-control ml-3" placeholder="Ingrese un valor">
-                        </li>
-                    {% endfor %}
-                {% else %}
-                    <li class="list-group-item">No hay elementos seleccionados.</li>
-                {% endif %}
-            </ul>
-            <button type="submit" class="btn btn-danger mt-3">Eliminar</button>
-        </form>
-        <!-- Formulario para guardar las listas -->
-        <form method="post" action="{{ url_for('save_lists') }}" class="mt-3" id="saveForm">
-            <!-- Campos ocultos para enviar los valores de los campos de texto -->
-            <input type="hidden" id="inputs_hidden" name="inputs">
-            <button type="submit" class="btn btn-success">Guardar Listas</button>
-        </form>
-        <!-- Enlace de regreso a la página principal -->
-        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Regresar</a>
+        <h1>Elementos Seleccionados con Valores</h1>
+        {% if message %}
+            <div class="alert alert-warning" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        
+        <!-- Botones para guardar reporte, eliminar y regresar -->
+        <div class="btn-group d-flex justify-content-center mb-3">
+            <button class="btn btn-primary mx-2" onclick="saveReport()">Guardar Reporte</button>
+            <button class="btn btn-danger mx-2" onclick="deleteReport()">Eliminar</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary mx-2">Regresar</a>
+        </div>
 
-        <!-- Script JavaScript para recolectar valores y enviar con el formulario -->
-        <script>
-            document.getElementById('saveForm').addEventListener('submit', function() {
-                // Recolectar todos los valores de los campos de texto
-                const inputs = [];
-                document.querySelectorAll('input[type="text"]').forEach(input => {
-                    inputs.push(input.value);
-                });
-                // Asignar los valores a un campo oculto en el formulario
-                document.getElementById('inputs_hidden').value = JSON.stringify(inputs);
-            });
-        </script>
+        <div id="tags-container" class="scrollable-list">
+            {% if selected_items %}
+                {% for item, value in selected_items.items() %}
+                    <button class="btn-item" onclick="showEditPopup('{{ item }}', '{{ value }}')">
+                        <strong>{{ item }}:</strong> {{ value }}
+                    </button>
+                {% endfor %}
+            {% else %}
+                <p>No hay elementos seleccionados.</p>
+            {% endif %}
+        </div>
     </div>
+
+    <!-- Modal para editar valor -->
+    <div class="modal" id="editModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Valor</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editItem" value="">
+                    <input type="text" id="editValue" class="form-control" placeholder="Ingrese un nuevo valor">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveEdit()">Guardar</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteItem()">Eliminar Elemento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="updateForm" method="POST" action="{{ url_for('show_selection') }}" style="display:none;">
+        <input type="hidden" name="selected_items" id="selected_items_hidden">
+    </form>
+    
+    <!-- Formulario para guardar reporte y eliminar -->
+    <form id="actionForm" method="POST" action="{{ url_for('handle_action') }}" style="display:none;">
+        <input type="hidden" name="action_type" id="action_type">
+    </form>
+
+    <script>
+        let selectedItems = {};
+    
+        function showEditPopup(item, value) {
+            document.getElementById('editItem').value = item;
+            document.getElementById('editValue').value = value;
+            $('#editModal').modal('show');
+        }
+    
+        function saveEdit() {
+            const item = document.getElementById('editItem').value;
+            const newValue = document.getElementById('editValue').value;
+            if (item && newValue) {
+                // Actualizar el valor en el diccionario
+                selectedItems[item] = newValue;
+                updateHiddenField();
+                // Enviar los datos actualizados al backend
+                updateSelectedItems();
+            }
+            $('#editModal').modal('hide');
+        }
+    
+        function updateHiddenField() {
+            document.getElementById('selected_items_hidden').value = JSON.stringify(selectedItems);
+        }
+    
+        function updateSelectedItems() {
+            document.getElementById('updateForm').submit();
+        }
+    
+        function saveReport() {
+            document.getElementById('action_type').value = 'save_report';
+            document.getElementById('actionForm').submit();
+        }
+    
+        function deleteReport() {
+            if (confirm("¿Estás seguro de que quieres eliminar el reporte?")) {
+                document.getElementById('action_type').value = 'delete_report';
+                document.getElementById('actionForm').submit();
+            }
+        }
+    
+        function deleteItem() {
+        const item = document.getElementById('editItem').value;
+        fetch('{{ url_for("delete_item") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ item: item })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                delete selectedItems[item];
+                updateHiddenField();
+                updateSelectedItems();
+                $('#editModal').modal('hide');
+            } else {
+                alert('Error al eliminar el elemento.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+        }
+    
+        // Inicializar selectedItems desde el backend
+        const initialSelectedItems = JSON.parse('{{ selected_items|tojson|safe }}');
+        selectedItems = {...initialSelectedItems};
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-
-
