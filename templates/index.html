@@ -28,25 +28,85 @@
         .btn-item:hover {
             background-color: #e2e6ea; /* Cambiar ligeramente el color al pasar el mouse */
         }
+        .btn-custom {
+            width: 150px; /* Establecer un ancho fijo para todos los botones */
+            margin: 5px; /* Espacio alrededor de los botones */
+            background-color: #f8f9fa; /* Fondo del botón, igual al fondo de la página */
+            border: 1px solid #ddd; /* Borde suave */
+            color: #333; /* Color del texto */
+            border-radius: 5px; /* Bordes redondeados */
+            cursor: pointer; /* Cursor de mano */
+            transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave */
+        }
+        .btn-custom[name="action"][value="filter"]:hover,
+        .btn-custom[name="action"][value="save"]:hover {
+            background-color: rgba(0, 123, 255, 0.8); /* Azul con 80% de opacidad al pasar el cursor */
+            color: #fff; /* Texto blanco al pasar el cursor */
+        }
+        .btn-custom[name="action"][value="filter"]:active,
+        .btn-custom[name="action"][value="save"]:active {
+            background-color: rgba(0, 123, 255, 1); /* Azul con opacidad completa al pulsar */
+            color: #fff; /* Texto blanco al pulsar */
+        }
+        .btn-custom[name="action"][value="edit"]:hover {
+            background-color: rgba(108, 117, 125, 0.9); /* Gris con 90% de opacidad al pasar el cursor */
+            color: #fff; /* Texto blanco al pasar el cursor */
+        }
+        .btn-custom[name="action"][value="edit"]:active {
+            background-color: rgba(108, 117, 125, 1); /* Gris con opacidad completa al pulsar */
+            color: #fff; /* Texto blanco al pulsar */
+        }
+        .modal-footer .btn-custom {
+            width: 100%; /* Hacer que el botón ocupe todo el ancho del contenedor */
+        }
+        .modal-body .form-control {
+            width: 100%; /* Hacer que el input ocupe todo el ancho del contenedor */
+            margin-bottom: 10px; /* Espacio inferior entre el input y el botón */
+        }
+        .btn-blue {
+            background-color: #f8f9fa; /* Azul con 80% de opacidad */
+            color: #333; /* Texto blanco */
+            border: none; /* Sin borde */
+            display: block; /* Para asegurar que el botón ocupe el ancho completo */
+            border: 1px solid #ddd; /* Borde suave */
+            width: 100%
+            
+        }
+        .btn-blue:hover {
+            background-color: rgba(0, 123, 255, 0.8); /* Azul con opacidad completa al pasar el cursor */
+            color: #fff; /* Texto blanco al pasar el cursor */
+        }
+        .btn-blue:active {
+            background-color: rgba(0, 123, 255, 1); /* Azul con opacidad completa al pulsar */
+            color: #fff; /* Texto blanco al pasar el cursor */
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            padding: 1rem; /* Espaciado adecuado en la parte inferior */
+        }
+        .modal-body .form-control {
+            margin-bottom: 10px; /* Espacio inferior entre el input y el botón */
+        }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Seleccionar y filtrar elementos</h1>
+    <div class="container mt-5 text-center">
+        <h1>Gestor de Reportes para Inventario</h1>
+        
         <!-- Formulario que envía la solicitud para filtrar y guardar -->
         <form method="post" action="{{ url_for('index') }}">
             <!-- Campo de texto para filtrar -->
             <div class="form-group">
-                <label for="filter_text">Utilice términos clave y sepárelos por *<br>Ej. AISLADOR*25KV</label>
+                <label for="filter_text">Utilice términos clave para realizar una búsqueda rápida, para usar más de una palabra sepárelas mediante *<br>Ej. AISLADOR*25KV</label>
                 <input type="text" id="filter_text" name="filter_text" class="form-control" value="{{ filter_text }}">
             </div>
-
             <!-- Grupo de botones: Filtrar, Guardar Selección y Editar Stock -->
-            <div class="d-flex justify-content-center mb-3">
-                <button type="submit" name="action" value="filter" class="btn btn-primary mx-2">Filtrar</button>
+            <div class="btn-group d-flex justify-content-center mb-3">
+                <button type="submit" name="action" value="filter" class="btn btn-custom">Filtrar</button>
                 <input type="hidden" id="selected_items_hidden" name="selected_items">
-                <button type="submit" name="action" value="save" class="btn btn-success mx-2">Guardar Selección</button>
-                <button type="button" class="btn btn-warning mx-2" onclick="editStock()">Editar Stock</button>
+                <button type="submit" name="action" value="save" class="btn btn-custom">Guardar Selección</button>
+                <button type="button" name="action" value="edit" class="btn btn-custom" onclick="editStock()">Editar Stock</button>
             </div>
         </form>
 
@@ -62,38 +122,38 @@
     <div class="modal" id="valueModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ingresar Valor</h5>
+                <div class="modal-header text-center">
+                    <h5 class="modal-title w-100">Ingresar Valor</h5> <!-- Ancho 100% para centrar el título -->
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <input type="text" id="inputValue" class="form-control" placeholder="Ingrese un valor">
+                <div class="modal-body text-center">
+                    <input type="text" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor"> <!-- Centrado con margen automático -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="saveValue()">Guardar</button>
+                    <button type="button" class="btn btn-blue" onclick="saveValue()">Guardar</button> <!-- Aplicado estilo azul con opacidad -->
                 </div>
             </div>
         </div>
     </div>
 
-        <!-- Modal para carga de archivo Excel -->
+    <!-- Modal para carga de archivo Excel -->
     <div class="modal" id="uploadModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cargar Archivo Excel</h5>
+                <div class="modal-header text-center">
+                    <h5 class="modal-title w-100">Cargar Archivo Excel</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body text-center">
                     <form id="uploadForm" method="post" enctype="multipart/form-data" action="{{ url_for('upload_stock') }}">
                         <div class="form-group">
                             <input type="file" name="file" class="form-control-file" accept=".xlsx, .xls">
                         </div>
-                        <button type="submit" class="btn btn-primary">Cargar Archivo</button>
+                        <button type="submit" class="btn btn-blue">Cargar Archivo</button> <!-- Aplicado estilo azul con opacidad -->
                     </form>
                 </div>
             </div>
@@ -123,10 +183,6 @@
         }
 
         function editStock() {
-            // Implementa la lógica para editar el stock aquí
-            alert("Función de edición de stock en construcción.");
-        }
-        function editStock() {
             $('#uploadModal').modal('show');
         }
 
@@ -149,3 +205,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
+
+
+
+
+

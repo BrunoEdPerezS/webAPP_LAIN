@@ -31,11 +31,52 @@
         .btn-group {
             margin-bottom: 20px;
         }
+        .modal-body, .modal-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centrar contenido horizontalmente */
+        }
+        .modal-footer .btn {
+            width: 150px; /* Mismo tamaño para ambos botones */
+            margin: 5px; /* Espacio entre botones */
+        }
+        /* Estilos para botones */
+        .btn {
+            background-color: #f8f9fa; /* Color de fondo igual al color de la página */
+            border: 1px solid #ddd; /* Borde claro */
+            color: #333; /* Texto oscuro */
+            opacity: 1; /* Opacidad completa por defecto */
+            transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease; /* Transición suave */
+        }
+        .btn-primary:hover {
+            background-color: rgba(0, 123, 255, 0.9); /* Azul con 80% de opacidad al pasar el cursor */
+            opacity: 0.9; /* Opacidad 80% al pasar el cursor */
+        }
+        .btn-primary:active {
+            background-color: rgba(0, 123, 255, 1); /* Azul con opacidad completa al pulsar */
+            opacity: 1; /* Opacidad completa al pulsar */
+        }
+        .btn-danger:hover {
+            background-color: rgba(220, 53, 69, 0.9); /* Rojo con 80% de opacidad al pasar el cursor */
+            opacity: 0.9; /* Opacidad 80% al pasar el cursor */
+        }
+        .btn-danger:active {
+            background-color: rgba(220, 53, 69, 1); /* Rojo con opacidad completa al pulsar */
+            opacity: 1; /* Opacidad completa al pulsar */
+        }
+        .btn-secondary:hover {
+            background-color: rgba(108, 117, 125, 0.9); /* Gris con 80% de opacidad al pasar el cursor */
+            opacity: 0.9; /* Opacidad 80% al pasar el cursor */
+        }
+        .btn-secondary:active {
+            background-color: rgba(108, 117, 125, 1); /* Gris con opacidad completa al pulsar */
+            opacity: 1; /* Opacidad completa al pulsar */
+        }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Elementos Seleccionados con Valores</h1>
+    <div class="container mt-5 text-center">
+        <h1>Vista de reporte</h1>
         {% if message %}
             <div class="alert alert-warning" role="alert">
                 {{ message }}
@@ -45,7 +86,7 @@
         <!-- Botones para guardar reporte, eliminar y regresar -->
         <div class="btn-group d-flex justify-content-center mb-3">
             <button class="btn btn-primary mx-2" onclick="saveReport()">Guardar Reporte</button>
-            <button class="btn btn-danger mx-2" onclick="deleteReport()">Eliminar</button>
+            <button class="btn btn-danger mx-2" onclick="deleteReport()">Eliminar Reporte</button>
             <a href="{{ url_for('index') }}" class="btn btn-secondary mx-2">Regresar</a>
         </div>
 
@@ -66,19 +107,24 @@
     <div class="modal" id="editModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Editar Valor</h5>
+                <div class="modal-header text-center">
+                    <h5 class="modal-title w-100">Editar elemento</h5> <!-- Centrado del título -->
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body text-center">
+                    <!-- Mostrar el nombre del elemento que se está editando -->
+                    <p id="itemName" class="font-weight-bold"></p> <!-- Nuevo contenedor para el nombre del elemento -->
                     <input type="hidden" id="editItem" value="">
-                    <input type="text" id="editValue" class="form-control" placeholder="Ingrese un nuevo valor">
+                    <input type="text" id="editValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un nuevo valor"> <!-- Centrado del campo de entrada -->
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="saveEdit()">Guardar</button>
-                    <button type="button" class="btn btn-danger" onclick="deleteItem()">Eliminar Elemento</button>
+                <div class="modal-footer justify-content-center">
+                    <!-- Botones centrados, con el mismo tamaño y espacio entre ellos -->
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-primary mx-2" style="width: 150px;" onclick="saveEdit()">Guardar</button>
+                        <button type="button" class="btn btn-danger mx-2" style="width: 150px;" onclick="deleteItem()">Eliminar Elemento</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -99,6 +145,8 @@
         function showEditPopup(item, value) {
             document.getElementById('editItem').value = item;
             document.getElementById('editValue').value = value;
+            // Mostrar el nombre del elemento que se está editando
+            document.getElementById('itemName').textContent = `${item}`; // Actualiza el contenido del <p> con el nombre del elemento
             $('#editModal').modal('show');
         }
     
@@ -136,28 +184,28 @@
         }
     
         function deleteItem() {
-        const item = document.getElementById('editItem').value;
-        fetch('{{ url_for("delete_item") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ item: item })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                delete selectedItems[item];
-                updateHiddenField();
-                updateSelectedItems();
-                $('#editModal').modal('hide');
-            } else {
-                alert('Error al eliminar el elemento.');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+            const item = document.getElementById('editItem').value;
+            fetch('{{ url_for("delete_item") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item: item })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    delete selectedItems[item];
+                    updateHiddenField();
+                    updateSelectedItems();
+                    $('#editModal').modal('hide');
+                } else {
+                    alert('Error al eliminar el elemento.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
-    
+
         // Inicializar selectedItems desde el backend
         const initialSelectedItems = JSON.parse('{{ selected_items|tojson|safe }}');
         selectedItems = {...initialSelectedItems};
