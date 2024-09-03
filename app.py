@@ -129,8 +129,9 @@ def index():
                 
                 # Actualizar el diccionario con nuevos elementos, solo si las claves no existen o el valor es distinto
                 for key, value in new_selected_items.items():
-                    if key not in current_selected_items or current_selected_items[key] != value:
-                        current_selected_items[key] = value
+                    print("Diccionario actualizado")
+                    #if key not in current_selected_items or current_selected_items[key] != value:
+                    current_selected_items[key] = value
                 
                 # Guardar el diccionario actualizado en la sesión
                 session['selected_items'] = current_selected_items
