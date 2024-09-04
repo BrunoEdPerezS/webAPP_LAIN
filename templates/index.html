@@ -104,7 +104,6 @@
             <!-- Grupo de botones: Filtrar, Guardar Selección y Editar Stock -->
             <div class="btn-group d-flex justify-content-center mb-3">
                 <button type="submit" name="action" value="filter" class="btn btn-custom">Filtrar</button>
-                <input type="hidden" id="selected_items_hidden" name="selected_items">
                 <button type="submit" name="action" value="save" class="btn btn-custom">Ver reporte</button>
                 <button type="button" name="action" value="edit" class="btn btn-custom" onclick="editStock()">Editar Stock</button>
             </div>
@@ -131,12 +130,21 @@
                 <div class="modal-body text-center">
                     <input type="text" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor"> <!-- Centrado con margen automático -->
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-blue" onclick="saveValue()">Guardar</button> <!-- Aplicado estilo azul con opacidad -->
-                </div>
+                <form method="post" action="{{ url_for('index') }}" id="formId">
+                    <input type="hidden" id="action_field" name="action" value=""> <!-- Campo oculto para la acción -->
+                    <input type="hidden" id="selected_items_hidden" name="selected_items">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-blue" onclick="saveAndSubmitForm()">Guardar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+
+
+
+
 
     <!-- Modal para carga de archivo Excel -->
     <div class="modal" id="uploadModal" tabindex="-1" role="dialog">
@@ -167,13 +175,18 @@
             document.getElementById('inputValue').value = '';
             $('#valueModal').data('item', item).modal('show');
         }
+        function saveAndSubmitForm() {
+            saveValue();  // Llama a saveValue para guardar el valor y actualizar el campo oculto
+            document.getElementById('action_field').value = 'add';  // Establece la acción a 'add'
+            document.getElementById('formId').submit();  // Enviar el formulario
+        }
 
         function saveValue() {
             const item = $('#valueModal').data('item');
             const value = document.getElementById('inputValue').value;
             if (value) {
-                selectedItems[item] = value;
-                updateHiddenField();
+                selectedItems[item] = value; // Actualiza el diccionario global
+                updateHiddenField(); // Actualiza el campo oculto con el diccionario en formato JSON
             }
             $('#valueModal').modal('hide');
         }
@@ -205,8 +218,3 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-
-
-
-

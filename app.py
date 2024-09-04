@@ -61,7 +61,7 @@ def encontrar_coincidencias(lists):
     return list(coincidencias)
 
 def generate_excel_report(selected_items):
-    df = pd.DataFrame(list(selected_items.items()), columns=['Item', 'Value'])
+    df = pd.DataFrame(list(selected_items.items()), columns=['Item', 'Cantidad'])
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Report')
@@ -112,6 +112,35 @@ def index():
                 #filtered_items = [item for item in items if filter_text in item.lower()]
                 #print("Items filtrados")
                 #print(filtered_items)
+
+
+        elif action == 'add':  # Acción para guardar selección     
+            print("Nuevo elemento agregado") 
+            selected_items_json = request.form.get('selected_items', '{}')
+            print(selected_items_json)
+            try:
+                new_selected_items = json.loads(selected_items_json)
+                print("Selected actuales")
+                print(new_selected_items)
+                
+                # Obtener el diccionario de elementos seleccionados de la sesión
+                current_selected_items = session.get('selected_items', {})
+                print("Selected globales")
+                print(current_selected_items)
+                
+                # Actualizar el diccionario con nuevos elementos, solo si las claves no existen o el valor es distinto
+                for key, value in new_selected_items.items():
+                    print("Diccionario actualizado")
+                    #if key not in current_selected_items or current_selected_items[key] != value:
+                    current_selected_items[key] = value
+                
+                # Guardar el diccionario actualizado en la sesión
+                session['selected_items'] = current_selected_items
+            except json.JSONDecodeError:
+                # Manejar el error en caso de que JSON no sea válido
+                session['selected_items'] = session.get('selected_items', {})
+                
+
 
 
 
