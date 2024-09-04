@@ -16,6 +16,9 @@ def procesar_archivo_excel(archivo_excel):
     # Extraer la columna deseada y convertirla en una lista
     columna = df[nombre_columna].tolist()
 
+    #Transformar caracteres ''
+    columna = [elemento.replace("''", '"') for elemento in columna]
+
     # Nombre del archivo Python
     archivo_py = 'lista_columna.py'
 
