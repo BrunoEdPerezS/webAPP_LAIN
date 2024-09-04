@@ -44,6 +44,10 @@ def buscar_keywords(keywords, biglist):
         resultados.append(coincidencias)
     
     return resultados
+def extraer_codigos_por_indices(lista_principal, indices):
+    # Extraer los elementos de la lista principal en los índices especificados
+    return [lista_principal[i] for i in indices if i < len(lista_principal) and i >= 0]
+
 
 ##Encuentra coincidencias entre elementos de listas
 def encontrar_coincidencias(lists):
@@ -60,13 +64,39 @@ def encontrar_coincidencias(lists):
     # Convertir el conjunto a lista y retornarlo
     return list(coincidencias)
 
-def generate_excel_report(selected_items):
+def generate_excel_report(lista,selected_items):
     df = pd.DataFrame(list(selected_items.items()), columns=['Item', 'Cantidad'])
+    df1 = pd.DataFrame(lista, columns=['Codigo'])
+    print("************************************************")
+    print("Diccionario:")
+    print(df)
+    print("Lista:")
+    print(df1)
+    df = pd.concat([df, df1], axis=1)
+    print("Df nuevo:")
+    print(df)
+    print("************************************************")
+
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Report')
     buffer.seek(0)
     return buffer
+
+def encontrar_indices(diccionario, lista):
+    # Inicializar una lista para almacenar los índices encontrados
+    indices_encontrados = []
+    
+    # Recorrer todas las claves del diccionario
+    for key in diccionario.keys():
+        # Verificar si la clave se encuentra en la lista
+        if key in lista:
+            # Guardar el índice de la lista donde se encontró la clave
+            indices_encontrados.append(lista.index(key))
+    
+    return indices_encontrados
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -224,10 +254,10 @@ def handle_action():
         
         # Obtener los elementos seleccionados de la sesión
         selected_items = session.get('selected_items', {})
-        
+        indices = encontrar_indices(selected_items,lista_columna.STOCK)
+        codigos = extraer_codigos_por_indices(indices,lista_columna.CODIGO)
         # Generar el archivo Excel
-        buffer = generate_excel_report(selected_items)
-        
+        buffer = generate_excel_report(codigos,selected_items)
         # Borra los elementos de selected_items de la sesión
         session.pop('selected_items', None)
         

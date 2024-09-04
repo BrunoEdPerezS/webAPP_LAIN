@@ -2,35 +2,40 @@ import pandas as pd
 import json
 
 def procesar_archivo_excel(archivo_excel):
-
     # Cargar el DataFrame desde el archivo Excel
     df = archivo_excel
 
-    # Nombre de la columna que deseas extraer
-    nombre_columna = 'descrip_producto'  # Cambia 'descrip_producto' al nombre de la columna que deseas extraer
+    # Nombres de las columnas que deseas extraer
+    nombre_columna = 'descrip_producto'  
+    codigo_columna = 'codigo_producto'
 
-    # Verificar si la columna existe en el DataFrame
+    # Verificar si las columnas existen en el DataFrame
     if nombre_columna not in df.columns:
         raise ValueError(f"La columna '{nombre_columna}' no existe en el DataFrame.")
+    if codigo_columna not in df.columns:
+        raise ValueError(f"La columna '{codigo_columna}' no existe en el DataFrame.")
 
-    # Extraer la columna deseada y convertirla en una lista
-    columna = df[nombre_columna].tolist()
+    # Extraer las columnas deseadas y convertirlas en listas
+    columna_descrip = df[nombre_columna].tolist()
+    columna_codigo = df[codigo_columna].tolist()
 
-    #Transformar caracteres ''
-    columna = [elemento.replace("''", '"') for elemento in columna]
+    # Transformar caracteres '' a " en ambas listas
+    columna_descrip = [elemento.replace("''", '"') for elemento in columna_descrip]
 
     # Nombre del archivo Python
     archivo_py = 'lista_columna.py'
 
-    # Convertir la lista a una cadena JSON segura
-    columna_json = json.dumps(columna, ensure_ascii=False)
+    # Convertir las listas a cadenas JSON seguras
+    descrip_json = json.dumps(columna_descrip, ensure_ascii=False)
+    codigo_json = json.dumps(columna_codigo, ensure_ascii=False)
 
-    # Guardar la lista en el archivo .py con codificación UTF-8
+    # Guardar las listas en el archivo .py con codificación UTF-8
     with open(archivo_py, 'w', encoding='utf-8') as f:
-        f.write(f"STOCK = {columna_json}\n")
+        f.write(f"STOCK = {descrip_json}\n")
+        f.write(f"CODIGO = {codigo_json}\n")
 
-    # Convertir todos los elementos a mayúsculas
-    lista_mayusculas = [item.upper() for item in columna]
-    
+    # Convertir todos los elementos a mayúsculas para ambas listas (opcional)
+    lista_mayusculas_descrip = [item.upper() for item in columna_descrip]
+    lista_mayusculas_codigo = [item.upper() for item in columna_codigo]
 
-    return lista_mayusculas
+    return lista_mayusculas_descrip, lista_mayusculas_codigo
