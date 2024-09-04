@@ -142,6 +142,34 @@
     <script>
         let selectedItems = {};
     
+        function downloadReport() {
+        // Crear un formulario oculto para la solicitud POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('handle_action') }}";
+
+        // Añadir un campo oculto para el tipo de acción
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'action_type';
+        input.value = 'save_report';
+        form.appendChild(input);
+
+        // Añadir el formulario al DOM y enviarlo
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Redirigir después de una breve espera para asegurar que la descarga haya comenzado
+        setTimeout(function() {
+            window.location.href = "{{ url_for('show_selection', message='Reporte guardado') }}";
+        }, 500); // Ajusta el tiempo según sea necesario
+    }
+
+    // Ejecutar la función cuando se haga clic en el botón de guardar
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.btn-primary').addEventListener('click', downloadReport);
+    });
+
         function showEditPopup(item, value) {
             document.getElementById('editItem').value = item;
             document.getElementById('editValue').value = value;

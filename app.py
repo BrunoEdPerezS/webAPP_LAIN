@@ -68,8 +68,6 @@ def generate_excel_report(selected_items):
     buffer.seek(0)
     return buffer
 
-
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global items  # Asegura que items se pueda modificar dentro de la función
@@ -219,17 +217,26 @@ def edit_stock():
 @app.route('/handle_action', methods=['POST'])
 def handle_action():
     action_type = request.form.get('action_type')
+    
     if action_type == 'save_report':
         print("guardado")
         print(session.get('selected_items', {}))
+        
         # Obtener los elementos seleccionados de la sesión
         selected_items = session.get('selected_items', {})
+        
         # Generar el archivo Excel
         buffer = generate_excel_report(selected_items)
-        # Crear la respuesta
+        
+        # Borra los elementos de selected_items de la sesión
+        session.pop('selected_items', None)
+        
+        # Crear la respuesta para la descarga del archivo
         response = Response(buffer, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response.headers['Content-Disposition'] = 'attachment; filename=report.xlsx'
+        
         return response
+
     elif action_type == 'delete_report':
         session.pop('selected_items', None)
         return redirect(url_for('show_selection', message='Reporte eliminado'))
