@@ -128,8 +128,8 @@
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    <!-- Cambiado type a "tel" para mostrar teclado numérico -->
-                    <input type="tel" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor"> <!-- Centrado con margen automático -->
+                    <!-- Cambiado type a "tel" o a type="number" para mostrar teclado numérico -->
+                    <input type="number" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor"> <!-- Centrado con margen automático -->
                 </div>
                 <form method="post" action="{{ url_for('index') }}" id="formId">
                     <input type="hidden" id="action_field" name="action" value=""> <!-- Campo oculto para la acción -->
