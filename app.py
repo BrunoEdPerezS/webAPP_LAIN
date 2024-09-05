@@ -161,15 +161,12 @@ def index():
                     print("Diccionario actualizado")
                     #if key not in current_selected_items or current_selected_items[key] != value:
                     current_selected_items[key] = value
-                
+                 
                 # Guardar el diccionario actualizado en la sesión
                 session['selected_items'] = current_selected_items
             except json.JSONDecodeError:
                 # Manejar el error en caso de que JSON no sea válido
                 session['selected_items'] = session.get('selected_items', {})
-                
-
-
 
 
         elif action == 'save':  # Acción para guardar selección
