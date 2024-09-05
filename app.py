@@ -72,7 +72,7 @@ def generate_excel_report(lista,selected_items):
     print(df)
     print("Lista:")
     print(df1)
-    df = pd.concat([df, df1], axis=1)
+    df = pd.concat([df1,df], axis=1)
     print("Df nuevo:")
     print(df)
     print("************************************************")
@@ -255,7 +255,11 @@ def handle_action():
         # Obtener los elementos seleccionados de la sesión
         selected_items = session.get('selected_items', {})
         indices = encontrar_indices(selected_items,lista_columna.STOCK)
-        codigos = extraer_codigos_por_indices(indices,lista_columna.CODIGO)
+        print("INDICES ENCONTRADOS: ")
+        print(indices)
+        codigos = extraer_codigos_por_indices(lista_columna.CODIGO,indices)
+        print("CODIGOS ENCONTRADOS: ")
+        print(codigos)
         # Generar el archivo Excel
         buffer = generate_excel_report(codigos,selected_items)
         # Borra los elementos de selected_items de la sesión
