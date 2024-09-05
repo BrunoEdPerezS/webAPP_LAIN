@@ -122,17 +122,16 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header text-center">
-                    <h5 class="modal-title w-100">Ingresar Valor</h5> <!-- Ancho 100% para centrar el título -->
+                    <h5 class="modal-title w-100">Ingresar Valor</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    <!-- Cambiado type a "tel" o a type="number" para mostrar teclado numérico -->
-                    <input type="number" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor"> <!-- Centrado con margen automático -->
+                    <input type="number" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor" onkeydown="handleKeyDown(event)">
                 </div>
                 <form method="post" action="{{ url_for('index') }}" id="formId">
-                    <input type="hidden" id="action_field" name="action" value=""> <!-- Campo oculto para la acción -->
+                    <input type="hidden" id="action_field" name="action" value="">
                     <input type="hidden" id="selected_items_hidden" name="selected_items">
                     <div class="modal-footer">
                         <button type="button" class="btn btn-blue" onclick="saveAndSubmitForm()">Guardar</button>
@@ -205,6 +204,12 @@
             const filter = urlParams.get('filter');
             if (filter === 'true') {
                 triggerFilter();
+            }
+        }
+        function handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                saveAndSubmitForm();
+                event.preventDefault(); // Evitar el comportamiento por defecto de la tecla Enter
             }
         }
 
