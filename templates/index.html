@@ -128,14 +128,7 @@
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    <input type="text" 
-                        id="inputValue" 
-                        class="form-control mx-auto" 
-                        style="max-width: 300px;" 
-                        placeholder="Ingrese un valor" 
-                        inputmode="decimal" 
-                        pattern="-?[0-9]*" 
-                        onkeydown="handleKeyDown(event)">
+                    <input type="number" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor" onkeydown="handleKeyDown(event)">
                 </div>
                 <form method="post" action="{{ url_for('index') }}" id="formId">
                     <input type="hidden" id="action_field" name="action" value="">

@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    <!-- Modal para editar valor -->z
+    <!-- Modal para editar valor -->
     <div class="modal" id="editModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -233,6 +233,7 @@
             })
             .catch(error => console.error('Error:', error));
         }
+        
 
         // Inicializar selectedItems desde el backend
         const initialSelectedItems = JSON.parse('{{ selected_items|tojson|safe }}');
