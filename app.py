@@ -14,6 +14,7 @@ app.secret_key = 'your_secret_key'  # Necesario para usar la sesión en Flask
 #items = ["ITEM1", "ITEM2", "ITEM3", "ITEM4", "ELEMENTO1", "ELEMENTO2"]
 
 items = lista_columna.STOCK
+cantidadSTOCK = lista_columna.cantidadSTOCK
 
 #items = lista_columna.STOCK
 current_selected_items = {}
@@ -171,29 +172,16 @@ def index():
 
 
         elif action == 'save':  # Acción para guardar selección
-            selected_items_json = request.form.get('selected_items', '{}')
-            try:
-                new_selected_items = json.loads(selected_items_json)
-                print("Selected actuales")
-                print(new_selected_items)
-                
+
+            
+            try:            
                 # Obtener el diccionario de elementos seleccionados de la sesión
-                current_selected_items = session.get('selected_items', {})
-                print("Selected globales")
-                print(current_selected_items)
-                
-                # Actualizar el diccionario con nuevos elementos, solo si las claves no existen o el valor es distinto
-                for key, value in new_selected_items.items():
-                    print("Diccionario actualizado")
-                    #if key not in current_selected_items or current_selected_items[key] != value:
-                    current_selected_items[key] = value
-                
+                current_selected_items = session.get('selected_items', {})            
                 # Guardar el diccionario actualizado en la sesión
                 session['selected_items'] = current_selected_items
             except json.JSONDecodeError:
                 # Manejar el error en caso de que JSON no sea válido
                 session['selected_items'] = session.get('selected_items', {})
-                
             if not session['selected_items']:
                 return redirect(url_for('show_selection', message='No hay elementos agregados'))
             return redirect(url_for('show_selection'))
@@ -233,9 +221,13 @@ def show_selection():
 
         return redirect(url_for('show_selection'))
 
-    message = request.args.get('message', '')
-    return render_template('selected.html', selected_items=session.get('selected_items', {}), message=message)
+    # Calcular stock_de_producto
+    current_selected_items = session.get('selected_items', {})
+    indices = encontrar_indices(current_selected_items, lista_columna.STOCK)
+    stock_de_producto = extraer_codigos_por_indices(lista_columna.cantidadSTOCK, indices)
 
+    message = request.args.get('message', '')
+    return render_template('selected.html', selected_items=current_selected_items, stock_de_producto=stock_de_producto, message=message)
 
 @app.route('/edit_stock')
 def edit_stock():

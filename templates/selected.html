@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
         .scrollable-list {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
+            max-height: 400px; /* Altura máxima de la lista */
+            overflow-y: auto; /* Habilitar scroll vertical */
+            border: 1px solid #ddd; /* Borde suave */
             padding: 10px;
             border-radius: 5px;
         }
@@ -17,16 +17,16 @@
             display: block;
             width: 100%;
             text-align: left;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
+            background-color: #f8f9fa; /* Fondo claro */
+            border: 1px solid #ddd; /* Borde suave */
             padding: 8px 12px;
             margin-bottom: 5px;
             border-radius: 5px;
-            color: #333;
+            color: #333; /* Texto oscuro */
             cursor: pointer;
         }
         .btn-item:hover {
-            background-color: #e2e6ea;
+            background-color: #e2e6ea; /* Cambiar ligeramente el color al pasar el mouse */
         }
         .btn-group {
             margin-bottom: 20px;
@@ -34,42 +34,43 @@
         .modal-body, .modal-footer {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* Centrar contenido horizontalmente */
         }
         .modal-footer .btn {
-            width: 150px;
-            margin: 5px;
+            width: 150px; /* Mismo tamaño para ambos botones */
+            margin: 5px; /* Espacio entre botones */
         }
+        /* Estilos para botones */
         .btn {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            color: #333;
-            opacity: 1;
-            transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+            background-color: #f8f9fa; /* Color de fondo igual al color de la página */
+            border: 1px solid #ddd; /* Borde claro */
+            color: #333; /* Texto oscuro */
+            opacity: 1; /* Opacidad completa por defecto */
+            transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease; /* Transición suave */
         }
         .btn-primary:hover {
-            background-color: rgba(0, 123, 255, 0.9);
-            opacity: 0.9;
+            background-color: rgba(0, 123, 255, 0.9); /* Azul con 80% de opacidad al pasar el cursor */
+            opacity: 0.9; /* Opacidad 80% al pasar el cursor */
         }
         .btn-primary:active {
-            background-color: rgba(0, 123, 255, 1);
-            opacity: 1;
+            background-color: rgba(0, 123, 255, 1); /* Azul con opacidad completa al pulsar */
+            opacity: 1; /* Opacidad completa al pulsar */
         }
         .btn-danger:hover {
-            background-color: rgba(220, 53, 69, 0.9);
-            opacity: 0.9;
+            background-color: rgba(220, 53, 69, 0.9); /* Rojo con 80% de opacidad al pasar el cursor */
+            opacity: 0.9; /* Opacidad 80% al pasar el cursor */
         }
         .btn-danger:active {
-            background-color: rgba(220, 53, 69, 1);
-            opacity: 1;
+            background-color: rgba(220, 53, 69, 1); /* Rojo con opacidad completa al pulsar */
+            opacity: 1; /* Opacidad completa al pulsar */
         }
         .btn-secondary:hover {
-            background-color: rgba(108, 117, 125, 0.9);
-            opacity: 0.9;
+            background-color: rgba(108, 117, 125, 0.9); /* Gris con 80% de opacidad al pasar el cursor */
+            opacity: 0.9; /* Opacidad 80% al pasar el cursor */
         }
         .btn-secondary:active {
-            background-color: rgba(108, 117, 125, 1);
-            opacity: 1;
+            background-color: rgba(108, 117, 125, 1); /* Gris con opacidad completa al pulsar */
+            opacity: 1; /* Opacidad completa al pulsar */
         }
     </style>
 </head>
@@ -85,17 +86,36 @@
         <!-- Botones para guardar reporte, eliminar y regresar -->
         <div class="btn-group d-flex justify-content-center mb-3">
             <button class="btn btn-primary mx-2" onclick="saveReport()">Guardar Reporte</button>
-            <button class="btn btn-danger mx-2" id="deleteReportButton">Eliminar Reporte</button>
+            <button class="btn btn-danger mx-2" onclick="deleteReport()">Eliminar Reporte</button>
             <a href="{{ url_for('index') }}" class="btn btn-secondary mx-2">Regresar</a>
         </div>
 
         <div id="tags-container" class="scrollable-list">
             {% if selected_items %}
-                {% for item, value in selected_items.items() %}
-                    <button class="btn-item" onclick="showEditPopup('{{ item }}', '{{ value }}')">
-                        <strong>{{ item }}:</strong> {{ value }}
-                    </button>
-                {% endfor %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Elemento</th>
+                            <th>Cantidad</th>
+                            <th>Stock</th> <!-- Nueva columna -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item, value in selected_items.items() %}
+                            <tr>
+                                <td><button class="btn-item" onclick="showEditPopup('{{ item }}', '{{ value }}')">{{ item }}</button></td>
+                                <td>{{ value }}</td>
+                                <td>
+                                    {% if stock_de_producto %}
+                                        {{ stock_de_producto[loop.index0] if loop.index0 < stock_de_producto|length else 'No disponible' }}
+                                    {% else %}
+                                        No disponible
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% else %}
                 <p>No hay elementos seleccionados.</p>
             {% endif %}
@@ -107,17 +127,19 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header text-center">
-                    <h5 class="modal-title w-100">Editar elemento</h5>
+                    <h5 class="modal-title w-100">Editar elemento</h5> <!-- Centrado del título -->
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    <p id="itemName" class="font-weight-bold"></p>
+                    <!-- Mostrar el nombre del elemento que se está editando -->
+                    <p id="itemName" class="font-weight-bold"></p> <!-- Nuevo contenedor para el nombre del elemento -->
                     <input type="hidden" id="editItem" value="">
-                    <input type="text" id="editValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un nuevo valor">
+                    <input type="text" id="editValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un nuevo valor"> <!-- Centrado del campo de entrada -->
                 </div>
                 <div class="modal-footer justify-content-center">
+                    <!-- Botones centrados, con el mismo tamaño y espacio entre ellos -->
                     <div class="d-flex justify-content-center">
                         <button type="button" class="btn btn-primary mx-2" style="width: 150px;" onclick="saveEdit()">Guardar</button>
                         <button type="button" class="btn btn-danger mx-2" style="width: 150px;" onclick="deleteItem()">Eliminar Elemento</button>
@@ -140,41 +162,38 @@
         let selectedItems = {};
     
         function downloadReport() {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "{{ url_for('handle_action') }}";
+        // Crear un formulario oculto para la solicitud POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('handle_action') }}";
 
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'action_type';
-            input.value = 'save_report';
-            form.appendChild(input);
+        // Añadir un campo oculto para el tipo de acción
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'action_type';
+        input.value = 'save_report';
+        form.appendChild(input);
 
-            document.body.appendChild(form);
-            form.submit();
-            
-            setTimeout(function() {
-                window.location.href = "{{ url_for('show_selection', message='Reporte guardado') }}";
-            }, 1500);
-        }
+        // Añadir el formulario al DOM y enviarlo
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Redirigir después de una breve espera para asegurar que la descarga haya comenzado
+        setTimeout(function() {
+            window.location.href = "{{ url_for('show_selection', message='Reporte guardado') }}";
+        }, 1000); // Ajusta el tiempo según sea necesario
+    }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelector('.btn-primary').addEventListener('click', downloadReport);
-
-            // Confirmación de eliminación del reporte
-            document.getElementById('deleteReportButton').addEventListener('click', function(event) {
-                if (!confirm("¿Estás seguro de que quieres eliminar el reporte?")) {
-                    event.preventDefault();
-                } else {
-                    deleteReport();
-                }
-            });
-        });
+    // Ejecutar la función cuando se haga clic en el botón de guardar
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.btn-primary').addEventListener('click', downloadReport);
+    });
 
         function showEditPopup(item, value) {
             document.getElementById('editItem').value = item;
             document.getElementById('editValue').value = value;
-            document.getElementById('itemName').textContent = `${item}`;
+            // Mostrar el nombre del elemento que se está editando
+            document.getElementById('itemName').textContent = `${item}`; // Actualiza el contenido del <p> con el nombre del elemento
             $('#editModal').modal('show');
         }
     
@@ -182,8 +201,10 @@
             const item = document.getElementById('editItem').value;
             const newValue = document.getElementById('editValue').value;
             if (item && newValue) {
+                // Actualizar el valor en el diccionario
                 selectedItems[item] = newValue;
                 updateHiddenField();
+                // Enviar los datos actualizados al backend
                 updateSelectedItems();
             }
             $('#editModal').modal('hide');
@@ -203,8 +224,10 @@
         }
     
         function deleteReport() {
-            document.getElementById('action_type').value = 'delete_report';
-            document.getElementById('actionForm').submit();
+            if (confirm("¿Estás seguro de que quieres eliminar el reporte?")) {
+                document.getElementById('action_type').value = 'delete_report';
+                document.getElementById('actionForm').submit();
+            }
         }
     
         function deleteItem() {
@@ -230,6 +253,8 @@
             .catch(error => console.error('Error:', error));
         }
         
+
+        // Inicializar selectedItems desde el backend
         const initialSelectedItems = JSON.parse('{{ selected_items|tojson|safe }}');
         selectedItems = {...initialSelectedItems};
     </script>
