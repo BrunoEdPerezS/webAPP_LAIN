@@ -15,6 +15,7 @@ app.secret_key = 'your_secret_key'  # Necesario para usar la sesión en Flask
 
 items = lista_columna.STOCK
 cantidadSTOCK = lista_columna.cantidadSTOCK
+items_CODIGO = lista_columna.CODIGO
 
 #items = lista_columna.STOCK
 current_selected_items = {}
@@ -188,6 +189,8 @@ def index():
 
     return render_template('index.html', items=filtered_items, filter_text=filter_text)
 
+
+
 @app.route('/show_selection', methods=['GET', 'POST'])
 def show_selection():
     if request.method == 'POST':
@@ -223,8 +226,8 @@ def show_selection():
 
     # Calcular stock_de_producto
     current_selected_items = session.get('selected_items', {})
-    indices = encontrar_indices(current_selected_items, lista_columna.STOCK)
-    stock_de_producto = extraer_codigos_por_indices(lista_columna.cantidadSTOCK, indices)
+    indices = encontrar_indices(current_selected_items, items)
+    stock_de_producto = extraer_codigos_por_indices(cantidadSTOCK, indices)
 
     message = request.args.get('message', '')
     return render_template('selected.html', selected_items=current_selected_items, stock_de_producto=stock_de_producto, message=message)
@@ -244,10 +247,10 @@ def handle_action():
         
         # Obtener los elementos seleccionados de la sesión
         selected_items = session.get('selected_items', {})
-        indices = encontrar_indices(selected_items,lista_columna.STOCK)
+        indices = encontrar_indices(selected_items,items)
         print("INDICES ENCONTRADOS: ")
         print(indices)
-        codigos = extraer_codigos_por_indices(lista_columna.CODIGO,indices)
+        codigos = extraer_codigos_por_indices(items_CODIGO,indices)
         print("CODIGOS ENCONTRADOS: ")
         print(codigos)
         # Generar el archivo Excel
@@ -290,6 +293,7 @@ def delete_item():
 
 @app.route('/upload_stock', methods=['POST'])
 def upload_stock():
+    session.pop('selected_items', None)
     if 'file' not in request.files:
         return redirect(url_for('index', message='No file part'))
 
