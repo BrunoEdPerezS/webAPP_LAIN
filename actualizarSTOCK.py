@@ -42,6 +42,6 @@ def procesar_archivo_excel(archivo_excel):
 
     # Convertir todos los elementos a mayúsculas para ambas listas (opcional)
     lista_mayusculas_descrip = [item.upper() for item in columna_descrip]
-    lista_mayusculas_codigo = [item.upper() for item in columna_codigo]
+    #lista_mayusculas_codigo = [item.upper() for item in columna_codigo]
 
-    return lista_mayusculas_descrip, lista_mayusculas_codigo
+    return lista_mayusculas_descrip #lista_mayusculas_codigo
