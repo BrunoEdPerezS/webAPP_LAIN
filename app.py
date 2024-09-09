@@ -5,6 +5,7 @@ import pandas as pd
 import io
 from io import BytesIO
 import actualizarSTOCK
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Necesario para usar la sesión en Flask
@@ -262,9 +263,15 @@ def handle_action():
         # Borra los elementos de selected_items de la sesión
         session.pop('selected_items', None)
         
+        # Obtener la fecha y hora actual en formato YYYYMMDD_HHMMSS
+        current_time = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        
+        # Crear el nombre del archivo con la fecha y hora
+        filename = f"Reporte_{current_time}.xlsx"
+        
         # Crear la respuesta para la descarga del archivo
         response = Response(buffer, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response.headers['Content-Disposition'] = 'attachment; filename=report.xlsx'
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
         
         return response
 
