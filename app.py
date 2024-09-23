@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
 import json
+import os
 import lista_columna
 import pandas as pd
 import io
 from io import BytesIO
 import actualizarSTOCK
+import stock_toJSON
 from datetime import datetime
 
 app = Flask(__name__)
@@ -13,12 +15,25 @@ app.secret_key = 'your_secret_key'  # Necesario para usar la sesión en Flask
 # Lista de elementos de ejemplo
 #items = ["ITEM1", "ITEM2", "ITEM3", "ITEM4", "ELEMENTO1", "ELEMENTO2"]
 
-items = lista_columna.STOCK
-cantidadSTOCK = lista_columna.cantidadSTOCK
-items_CODIGO = lista_columna.CODIGO
+global items
+global cantidadSTOCK
+global items_CODIGO
 
-#items = lista_columna.STOCK
-current_selected_items = {}
+#Cargar desde el JSON
+def cargar_datos_desde_json():
+    directorio_actual = os.path.dirname(os.path.abspath(__file__))
+    # Construye la ruta al archivo en la carpeta static
+    ruta_json = os.path.join(directorio_actual, 'static', 'lista_columna.json')
+    with open(ruta_json, 'r', encoding='utf-8') as f:
+        datos = json.load(f)
+    
+    items = datos.get('STOCK', [])
+    cantidadSTOCK = datos.get('cantidadSTOCK', [])
+    items_CODIGO = datos.get('CODIGO', [])
+    
+    return items, cantidadSTOCK, items_CODIGO
+
+items, cantidadSTOCK, items_CODIGO = cargar_datos_desde_json()
 
 ##Manejo de strings para filtrado-------------------
 def separar_cadena(texto):
@@ -104,8 +119,11 @@ def encontrar_indices(diccionario, lista):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global items  # Asegura que items se pueda modificar dentro de la función
+    global cantidadSTOCK
+    global items_CODIGO
     filtered_items = items  # Iniciar con la lista completa de elementos
     filter_text = request.form.get('filter_text', '')
+    items, cantidadSTOCK, items_CODIGO = cargar_datos_desde_json()
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -306,15 +324,15 @@ def upload_stock():
         try:
             df = pd.read_excel(file)
             print("Archivo Excel cargado:")
-            print(df)
-            actualizarSTOCK.procesar_archivo_excel(df)
+            #print(df)
+            stock_toJSON.procesar_archivo_excel(df)
             # Aquí puedes procesar el DataFrame df como necesites
             # Por ejemplo, convertir los valores a mayúsculas, etc.
             # Actualiza tu lista de elementos si es necesario
         except Exception as e:
             print(f"Error al procesar el archivo: {e}")
             return redirect(url_for('index', message='Error al procesar el archivo'))
-    
+        
     return redirect(url_for('index', filter='true',message='Archivo cargado exitosamente'))
 
 if __name__ == '__main__':
