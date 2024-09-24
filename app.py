@@ -125,6 +125,9 @@ def index():
     filter_text = request.form.get('filter_text', '')
     items, cantidadSTOCK, items_CODIGO = cargar_datos_desde_json()
 
+    # Crear un diccionario para stock
+    stockAvailable = {item: stock for item, stock in zip(items, cantidadSTOCK)}
+
     if request.method == 'POST':
         action = request.form.get('action')
         
@@ -205,7 +208,7 @@ def index():
                 return redirect(url_for('show_selection', message='No hay elementos agregados'))
             return redirect(url_for('show_selection'))
 
-    return render_template('index.html', items=filtered_items, filter_text=filter_text)
+    return render_template('index.html', items=filtered_items, filter_text=filter_text, stockAvailable=stockAvailable)
 
 
 

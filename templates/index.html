@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filtrar y Seleccionar Elementos</title>
+    <title>appREPORTE Inventario</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
         .scrollable-list {
@@ -129,6 +129,7 @@
                 </div>
                 <div class="modal-body text-center">
                     <input type="number" id="inputValue" class="form-control mx-auto" style="max-width: 300px;" placeholder="Ingrese un valor" onkeydown="handleKeyDown(event)">
+                    <div id="itemValueDisplay" class="mt-2 font-weight-bold"></div> <!-- Elemento para mostrar el valor del diccionario -->
                 </div>
                 <form method="post" action="{{ url_for('index') }}" id="formId">
                     <input type="hidden" id="action_field" name="action" value="">
@@ -166,11 +167,18 @@
     <script>
         let selectedItems = {};
 
+        const stockAvailable = {{ stockAvailable | tojson }};
+        
         function showPopup(item) {
             document.getElementById('inputValue').value = '';
             $('#valueModal').data('item', item).modal('show');
-            document.getElementById('inputValue').focus(); // Enfoca automáticamente el campo de texto
+            document.getElementById('inputValue').focus();
+
+            // Mostrar el valor correspondiente en el diccionario stockAvailable
+            const value = stockAvailable[item] || 0; // Muestra el valor o un mensaje por defecto
+            document.getElementById('itemValueDisplay').innerText = `Stock disponible: ${value}`;
         }
+
         function saveAndSubmitForm() {
             saveValue();  // Llama a saveValue para guardar el valor y actualizar el campo oculto
             document.getElementById('action_field').value = 'add';  // Establece la acción a 'add'
