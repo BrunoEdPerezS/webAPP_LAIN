@@ -20,7 +20,7 @@ def procesar_archivo_excel(archivo_excel):
         raise ValueError(f"La columna '{cantidad_columna}' no existe en el DataFrame.")
     
     # Extraer las columnas deseadas y convertirlas en listas
-    columna_descrip = df[nombre_columna].tolist()
+    columna_descrip = df[nombre_columna].str.upper().tolist()
     columna_codigo = df[codigo_columna].tolist()
     columna_cantidadSTOCK = df[cantidad_columna].tolist()
 
