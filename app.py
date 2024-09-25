@@ -82,15 +82,16 @@ def encontrar_coincidencias(lists):
     # Convertir el conjunto a lista y retornarlo
     return list(coincidencias)
 
-def generate_excel_report(lista,selected_items):
+def generate_excel_report(lista,selected_items,stockMONICA):
     df = pd.DataFrame(list(selected_items.items()), columns=['Item', 'Cantidad'])
     df1 = pd.DataFrame(lista, columns=['Codigo'])
+    df2 = pd.DataFrame(stockMONICA, columns=['Stock MONICA'])
     print("************************************************")
     print("Diccionario:")
     print(df)
     print("Lista:")
     print(df1)
-    df = pd.concat([df1,df], axis=1)
+    df = pd.concat([df1,df,df2], axis=1)
     print("Df nuevo:")
     print(df)
     print("************************************************")
@@ -274,8 +275,11 @@ def handle_action():
         codigos = extraer_codigos_por_indices(items_CODIGO,indices)
         print("CODIGOS ENCONTRADOS: ")
         print(codigos)
+        # Calcular stock_de_producto
+        indices = encontrar_indices(selected_items, items)
+        stock_de_producto = extraer_codigos_por_indices(cantidadSTOCK, indices)
         # Generar el archivo Excel
-        buffer = generate_excel_report(codigos,selected_items)
+        buffer = generate_excel_report(codigos,selected_items,stock_de_producto)
         # Borra los elementos de selected_items de la sesión
         session.pop('selected_items', None)
         
